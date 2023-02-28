@@ -1,5 +1,5 @@
 import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
-import Table from "./Table";
+import Table from "./Components/Table";
 
 function App() {
   return (

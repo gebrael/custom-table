@@ -1,50 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
+import instance from "../../Utils/Mock";
+import Copy from "../Copy";
 
 function Table() {
+  const [data, setData] = useState();
+  const [countries, setCountries] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [expandSearch, setExpandSearch] = useState(false);
+  const [filters, setFilters] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    country_id: "",
+  });
+  const handleChangeFilter = (e) => {
+    setFilters({
+      ...filters,
+      [e.target.id]: e.target.value,
+    });
+    fetchData();
+  };
+
+  useEffect(() => {
+    fetchCountries();
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
+    instance
+      .get("/users", {
+        params: {
+          name: filters.name,
+          email: filters.email,
+          phone: filters.phone,
+          company: filters.company,
+          country_id: filters.country_id,
+        },
+      })
+      .then((res) => {
+        setData(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const fetchCountries = () => {
+    instance
+      .get("/country")
+      .then((res) => {
+        setCountries(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const columns = [
     {
-      name: "Title",
-      selector: (row) => row.title,
+      name: "Id",
+      selector: (row) => {
+        return row.id;
+      },
     },
     {
-      name: "Year",
-      selector: (row) => row.year,
-    },
-  ];
-
-  const data = [
-    {
-      id: 1,
-      title: "Ghostbusters",
-      year: "1984",
+      name: "Name",
+      selector: (row) => {
+        return row.name;
+      },
     },
     {
-      id: 2,
-      title: "Ghostbusters",
-      year: "1984",
+      name: "Email",
+      selector: (row) => {
+        return row.email;
+      },
     },
     {
-      id: 3,
-      title: "Ghostbusters",
-      year: "1984",
+      name: "Phone",
+      selector: (row) => {
+        return row.phone;
+      },
     },
     {
-      id: 4,
-      title: "Ghostbusters",
-      year: "1984",
+      name: "Company",
+      selector: (row) => {
+        return row.company;
+      },
     },
     {
-      id: 6,
-      title: "Ghostbusters",
-      year: "1984",
-    },
-    {
-      id: 5,
-      title: "Ghostbusters",
-      year: "1984",
+      name: "Country",
+      selector: (row) => {
+        if (countries.length > 0) {
+          return countries.filter((c) => c.country_id == row.country_id)[0]
+            ?.country_name;
+        }
+      },
     },
   ];
 
@@ -101,36 +152,51 @@ function Table() {
             className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
             type="email"
             placeholder="Email"
+            id="email"
+            onChange={handleChangeFilter}
           />
           <input
             className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
             type="number"
             placeholder="Phone"
+            id="phone"
+            onChange={handleChangeFilter}
           />
           <input
             className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
             type="text"
-            placeholder="Name"
+            placeholder="name"
+            id="name"
+            onChange={handleChangeFilter}
           />
           <input
             className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
             type="text"
             placeholder="Company"
+            id="company"
+            onChange={handleChangeFilter}
           />
-          <select className="w-full p-3 pl-2 border-b border-slate-100 focus:outline-none focus:border-blue-500">
-            <option defaultValue className="text-blue-200">
-              Choose a country
-            </option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
+          <select
+            className="w-full p-3 pl-2 border-b border-slate-100 focus:outline-none focus:border-blue-500"
+            id="country_id"
+            onChange={handleChangeFilter}
+          >
+            <option defaultValue>Choose a country</option>
+            {countries.map((country, key) => (
+              <option key={key} value={country.country_id}>
+                {country.country_name}
+              </option>
+            ))}
           </select>
-          <input
-            className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
-            type="email"
-            placeholder="Date"
-          />
+          <div className="w-full relative">
+            <input
+              className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
+              type="email"
+              placeholder="Date"
+            />
+
+            <i className="fa-solid fa-calendar-days absolute top-1/2 right-0 rounded-full" />
+          </div>
           <button className="flex gap-2 items-center justify-center rounded-md py-2 px-5 text-white bg-blue-500 ">
             <i className="fa-solid fa-filter"></i>
             Filter
