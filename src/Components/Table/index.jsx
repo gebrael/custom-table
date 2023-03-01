@@ -76,7 +76,7 @@ function Table() {
       name: "Id",
       selector: (row) => {
         return (
-          <div className="flex flex-col md:flex-row justify-content-between">
+          <div className="flex flex-col md:flex-row gap-1">
             {row.id.slice(0, 4) + "....." + row.id.slice(-4)}
             <Copy item={row.id} />
           </div>
@@ -94,7 +94,7 @@ function Table() {
       name: "Email",
       selector: (row) => {
         return (
-          <div className="flex flex-col md:flex-row justify-content-between">
+          <div className="flex flex-col md:flex-row gap-1">
             {row.email}
             <Copy item={row.email} />
           </div>
@@ -106,7 +106,7 @@ function Table() {
       name: "Phone",
       selector: (row) => {
         return (
-          <div className="flex flex-col md:flex-row justify-content-between">
+          <div className="flex flex-col md:flex-row gap-1">
             {row.phone}
             <Copy item={row.phone} />
           </div>
