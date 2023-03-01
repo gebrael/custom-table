@@ -16,6 +16,7 @@ const employees_data = [
     email: "test@test.com",
     phone: "00201234567899",
     company: "Nasa",
+    date: "2010-10-16",
     country_id: "1",
   },
   {
@@ -24,6 +25,7 @@ const employees_data = [
     email: "test2@test.com",
     phone: "00206234567899",
     company: "MicroSoft",
+    date: "2020-08-15",
     country_id: "1",
   },
   {
@@ -32,6 +34,7 @@ const employees_data = [
     email: "test3@test.com",
     phone: "00201234667899",
     company: "Google",
+    date: "2021-12-05",
     country_id: "2",
   },
   {
@@ -40,6 +43,7 @@ const employees_data = [
     email: "test4@test.com",
     phone: "00201274567899",
     company: "Nasa",
+    date: "2005-02-10",
     country_id: "1",
   },
   {
@@ -48,6 +52,7 @@ const employees_data = [
     email: "test5@test.com",
     phone: "00201234564899",
     company: "FaceBook",
+    date: "2020-02-10",
     country_id: "3",
   },
   {
@@ -56,6 +61,7 @@ const employees_data = [
     email: "test6@test.com",
     phone: "00241234567899",
     company: "Apple",
+    date: "2010-07-10",
     country_id: "5",
   },
 ];
@@ -81,6 +87,9 @@ mock.onGet("/users").reply(function ({ params }) {
   }
   if (params?.phone && params?.phone?.length > 0) {
     employees = employees.filter((em) => em.phone.includes(params.phone));
+  }
+  if (params?.date && params?.date?.length > 0) {
+    employees = employees.filter((em) => em.date == params.date);
   }
   if (params?.country_id && params?.country_id?.length > 0) {
     employees = employees.filter((em) => em.country_id == params.country_id);

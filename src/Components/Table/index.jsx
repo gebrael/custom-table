@@ -4,6 +4,7 @@ import instance from "../../Utils/Mock";
 import Copy from "../Copy";
 
 function Table() {
+  const [originalData, setOriginalData] = useState();
   const [data, setData] = useState();
   const [countries, setCountries] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -13,6 +14,7 @@ function Table() {
     email: "",
     phone: "",
     company: "",
+    date: "",
     country_id: "",
   });
   const handleChangeFilter = (e) => {
@@ -20,14 +22,11 @@ function Table() {
       ...filters,
       [e.target.id]: e.target.value,
     });
-    fetchData();
   };
-
   useEffect(() => {
     fetchCountries();
     fetchData();
   }, []);
-
   const fetchData = () => {
     instance
       .get("/users", {
@@ -36,11 +35,13 @@ function Table() {
           email: filters.email,
           phone: filters.phone,
           company: filters.company,
+          date: filters.date,
           country_id: filters.country_id,
         },
       })
       .then((res) => {
-        setData(res.data);
+        setData([...res.data]);
+        setOriginalData([...res.data]);
       })
       .catch((err) => {
         console.log(err);
@@ -57,11 +58,29 @@ function Table() {
         console.log(err);
       });
   };
+  const handleSearch = (e) => {
+    const results = data?.filter((res) => {
+      return (
+        res.name.toLowerCase().match(e.toLocaleLowerCase()) ||
+        res.company.toLowerCase().match(e.toLocaleLowerCase()) ||
+        res.date.toLowerCase().match(e.toLocaleLowerCase()) ||
+        res.email.toLowerCase().match(e.toLocaleLowerCase()) ||
+        res.phone.toLowerCase().match(e.toLocaleLowerCase())
+      );
+    });
+    setData(results);
+  };
+
   const columns = [
     {
       name: "Id",
       selector: (row) => {
-        return row.id;
+        return (
+          <div className="flex gap-3">
+            {row.id.slice(0, 4) + "....." + row.id.slice(-4)}
+            <Copy item={row.id} />
+          </div>
+        );
       },
     },
     {
@@ -69,23 +88,43 @@ function Table() {
       selector: (row) => {
         return row.name;
       },
+      sortable: true,
     },
     {
       name: "Email",
       selector: (row) => {
-        return row.email;
+        return (
+          <div className="flex gap-3">
+            {row.email}
+            <Copy item={row.email} />
+          </div>
+        );
       },
+      sortable: true,
     },
     {
       name: "Phone",
       selector: (row) => {
-        return row.phone;
+        return (
+          <div className="flex gap-3">
+            {row.phone}
+            <Copy item={row.phone} />
+          </div>
+        );
       },
+      sortable: true,
     },
     {
       name: "Company",
       selector: (row) => {
         return row.company;
+      },
+      sortable: true,
+    },
+    {
+      name: "Date",
+      selector: (row) => {
+        return row.date;
       },
     },
     {
@@ -96,6 +135,7 @@ function Table() {
             ?.country_name;
         }
       },
+      sortable: true,
     },
   ];
 
@@ -104,7 +144,7 @@ function Table() {
       <div className="w-[200px] flex justify-start border-r-2 border-slate-300">
         <h1 className="text-xl">Heros</h1>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 ">
         <div className="flex gap-2 flex-row-reverse">
           <button
             className={` py-1 px-3 rounded-lg ease-in-out duration-300  hover:bg-sky-50 ${
@@ -115,11 +155,16 @@ function Table() {
             <i className="fa-solid fa-magnifying-glass"></i>
           </button>
           <input
-            className={` border-b border-slate-100 focus:outline-none focus:border-blue-500 ${
-              expandSearch ? "px-3 w-[300px]" : "w-[0px]"
+            className={` border-b border-slate-100 absolute md:static left-0 top-[30%] focus:outline-none focus:border-blue-500 ${
+              expandSearch ? "px-3 md:w-[300px]" : "w-[0px]"
             }`}
             type="text"
             placeholder="Search Here..."
+            onChange={(e) => {
+              e.target.value != ""
+                ? handleSearch(e.target.value)
+                : setData(originalData);
+            }}
           />
         </div>
         <button
@@ -143,25 +188,11 @@ function Table() {
       >
         {/* Header */}
         <div className="w-full py-11 border-b border-slate-300 flex items-center justify-center">
-          <h1 className="text-2xl">Filters</h1>
+          <h1 className="text-6xl text-slate-800 font-bold">Filters</h1>
         </div>
 
         {/* Inputs Form */}
         <div className="w-[90%] p-3 flex flex-col items-center  gap-7">
-          <input
-            className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
-            type="email"
-            placeholder="Email"
-            id="email"
-            onChange={handleChangeFilter}
-          />
-          <input
-            className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
-            type="number"
-            placeholder="Phone"
-            id="phone"
-            onChange={handleChangeFilter}
-          />
           <input
             className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
             type="text"
@@ -169,6 +200,23 @@ function Table() {
             id="name"
             onChange={handleChangeFilter}
           />
+
+          <input
+            className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
+            type="email"
+            placeholder="Email"
+            id="email"
+            onChange={handleChangeFilter}
+          />
+
+          <input
+            className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
+            type="number"
+            placeholder="Phone"
+            id="phone"
+            onChange={handleChangeFilter}
+          />
+
           <input
             className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
             type="text"
@@ -177,7 +225,7 @@ function Table() {
             onChange={handleChangeFilter}
           />
           <select
-            className="w-full p-3 pl-2 border-b border-slate-100 focus:outline-none focus:border-blue-500"
+            className="w-full p-3 pl-2 cursor-pointer border-b border-slate-100 focus:outline-none focus:border-blue-500"
             id="country_id"
             onChange={handleChangeFilter}
           >
@@ -188,16 +236,18 @@ function Table() {
               </option>
             ))}
           </select>
-          <div className="w-full relative">
-            <input
-              className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
-              type="email"
-              placeholder="Date"
-            />
+          <input
+            className="w-full p-3 border-b border-slate-100 focus:outline-none focus:border-blue-500"
+            type="date"
+            placeholder="Date"
+            id="date"
+            onChange={handleChangeFilter}
+          />
 
-            <i className="fa-solid fa-calendar-days absolute top-1/2 right-0 rounded-full" />
-          </div>
-          <button className="flex gap-2 items-center justify-center rounded-md py-2 px-5 text-white bg-blue-500 ">
+          <button
+            onClick={fetchData}
+            className="flex gap-2 items-center justify-center rounded-md py-2 px-5 text-white bg-blue-500 "
+          >
             <i className="fa-solid fa-filter"></i>
             Filter
           </button>
@@ -205,7 +255,7 @@ function Table() {
       </div>
 
       {/* Table */}
-      <div className="bg-white h-[90vh] p-2 w-full rounded-lg ">
+      <div className="bg-white h-[90vh] p-2 w-full rounded-lg">
         <DataTable
           columns={columns}
           data={data}
